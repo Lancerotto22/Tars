@@ -1,0 +1,703 @@
+
+
+openapi: 3.0.3
+info:
+  title: Tars deliverable API
+  description: ""
+  # termsOfService: http://swagger.io/terms/
+  #contact:
+  #  email: admin@iotinga.it
+  #license:
+  #  name: Apache 2.0
+  #  url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+#externalDocs:
+#  description: Find out more about Swagger
+#  url: http://swagger.io
+servers:
+  - url: https://tars.iotinga.it/space/api/v1
+#tags:
+#  - name: pet
+#    description: Everything about your Pets
+#    externalDocs:
+#      description: Find out more
+#      url: http://swagger.io
+#  - name: store
+#    description: Access to Petstore orders
+#    externalDocs:
+#      description: Find out more about our store
+#      url: http://swagger.io
+#  - name: user
+#    description: Operations about user
+paths:
+  /auth/user:
+    get:
+      summary: Get the current user information
+      operationId: getUser
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  id: 
+                    type: string
+                    description: user ID
+                    example: 1
+                  username:
+                    type: string
+                    description: user name
+                    example: alessandro.righi
+                  first_name: 
+                    type: string
+                    description: user first name
+                    example: Alessandro
+                  last_name:
+                    type: string
+                    description: user last name
+                    example: Righi
+                  email:
+                    type: string
+                    format: email
+                    description: user email
+                    example: alessandro.righi@iotinga.it
+        '401':
+          description: Invalid auth token
+
+  /auth/login:
+    post:
+      summary: Sign in
+      operationId: login
+      responses:
+        '200':
+          description: Signed in correctly
+  
+        '401':
+          description: Invalid credentials
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: 
+                  type: string
+                  description: username
+                password:
+                  type: string
+                  description: password
+  /auth/logout:
+    post:
+      summary: Sign out
+      operationId: logout
+      responses:
+        '200':
+          description: Signed out correctly
+
+  /customers:
+    get:
+      summary: Get the projects of a customer
+      description: Update an existing pet by Id
+      operationId: getCustomers
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: 
+                      type: string
+                      format: uuid
+                      description: ID of the customer
+                    name: 
+                      type: string
+                      format: string
+                      example: IRSAP
+                    number_of_projects:
+                      type: number
+                      description: number of project of the customer
+                      example: 4
+
+        '401':
+          description: Invalid auth token
+
+  /customers/{customer}:
+    get:
+      summary: Get informations about the customer
+      description: Update an existing pet by Id
+      operationId: getCustomer
+      parameters:
+        - name: customer
+          in: path
+          required: true
+          description: Customer name
+          example: IRSAP
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer' 
+
+        '401':
+          description: Invalid auth token
+          
+
+  /customers/{customer}/projects/{project}:
+    get:
+      summary: Get the projects of the customer
+      operationId: getProject
+      parameters:
+        - name: customer
+          in: path
+          required: true
+          description: Customer name
+          example: IRSAP
+          schema:
+            type: string
+        - name: project
+          in: path
+          required: true
+          description: Project name
+          example: NOW2
+          schema: 
+            type: string
+
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+
+        '401':
+          description: Invalid auth token
+          
+  /customers/{customer}/projects/{project}/deliverables/{deliverable}:
+    get:
+      summary: Get a deliverable
+      operationId: getDeliverable
+      parameters:
+        - name: customer
+          in: path
+          required: true
+          description: Customer name
+          example: IRSAP
+          schema:
+            type: string
+        - name: project
+          in: path
+          required: true
+          description: Project name
+          example: NOW2
+          schema: 
+            type: string
+        - name: deliverable
+          in: path
+          required: true
+          description: deliverable name
+          example: now2-app-android
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Deliverable'
+
+        '401':
+          description: Invalid auth token
+
+  /customers/{customer}/projects/{project}/deliverables/{deliverable}/events:
+    get:
+      summary: Get events of a deliverable
+      operationId: getDeliverableEvents
+      parameters:
+        - name: customer
+          in: path
+          required: true
+          description: Customer name
+          example: IRSAP
+          schema:
+            type: string
+        - name: project
+          in: path
+          required: true
+          description: Project name
+          example: NOW2
+          schema: 
+            type: string
+        - name: deliverable
+          in: path
+          required: true
+          description: deliverable name
+          example: now2-app-android
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          description: Show events starting from the specified timeout
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          description: Show events starting from the specified timeout
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          required: false
+          description: Return maximum limit events
+          schema: 
+            type: number
+          example: 50
+        - name: offset
+          in: query
+          required: false
+          description: Skip offset events in response
+          schema:
+            type: number
+
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+
+        '401':
+          description: Invalid auth token
+
+  /customers/{customer}/projects/{project}/deliverables/{deliverable}/configurations/{stage}:
+    get:
+      summary: Get the projects of the customer
+      operationId: getConfiguration
+      parameters:
+        - name: customer
+          in: path
+          required: true
+          description: Customer name
+          example: IRSAP
+          schema:
+            type: string
+        - name: project
+          in: path
+          required: true
+          description: Project name
+          example: NOW2
+          schema: 
+            type: string
+        - name: deliverable
+          in: path
+          required: true
+          example: now2-app-android
+          description: deliverable name
+          schema:
+            type: string
+        - name: stage
+          in: path
+          required: true
+          description: Stage to publish to
+          example: staging
+          schema: 
+            type: string  
+            enum: [delivery, staging, production]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            '*/*': {}
+              
+
+        '401':
+          description: Invalid auth token
+    
+    put:
+      summary: Update the configuration
+      operationId: putConfiguration
+      parameters:
+        - name: customer
+          in: path
+          required: true
+          description: Customer name
+          example: IRSAP
+          schema:
+            type: string
+        - name: project
+          in: path
+          required: true
+          description: Project name
+          example: NOW2
+          schema: 
+            type: string
+        - name: deliverable
+          in: path
+          required: true
+          description: deliverable name
+          example: now2-app-android
+          schema:
+            type: string
+        - name: stage
+          in: path
+          required: true
+          description: Stage to publish to
+          example: staging
+          schema: 
+            type: string  
+            enum: [delivery, staging, production]
+
+      responses:
+        '200':
+          description: Successful operation
+          
+        '401':
+          description: Invalid auth token
+
+    delete:
+      summary: Delete the configuration
+      operationId: deleteConfiguration
+      parameters:
+        - name: customer
+          in: path
+          required: true
+          description: Customer name
+          example: IRSAP
+          schema:
+            type: string
+        - name: project
+          in: path
+          required: true
+          description: Project name
+          example: NOW2
+          schema: 
+            type: string
+        - name: deliverable
+          in: path
+          required: true
+          example: now2-app-android
+          description: deliverable name
+          schema:
+            type: string
+        - name: stage
+          in: path
+          required: true
+          description: Stage to publish to
+          example: staging
+          schema: 
+            type: string  
+            enum: [delivery, staging, production]
+
+      responses:
+        '200':
+          description: Successful operation
+          
+        '401':
+          description: Invalid auth token
+
+  /customers/{customer}/projects/{project}/deliverables/{deliverable}/publish:
+    post:
+      summary: Publish a deliverable
+      operationId: publish
+      parameters:
+        - name: customer
+          in: path
+          required: true
+          description: Customer name
+          example: IRSAP
+          schema:
+            type: string
+        - name: project
+          in: path
+          required: true
+          description: Project name
+          example: NOW2
+          schema: 
+            type: string
+        - name: deliverable
+          in: path
+          required: true
+          example: now2-app-android
+          description: deliverable name
+          schema:
+            type: string
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stage:
+                  type: string
+                  enum: [delivery, staging, production]
+                  description: Stage to publish to 
+                  example: staging
+                version:
+                  type: string
+                  description: version to publish
+                  example: v1.2.3
+
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+
+        '401':
+          description: Invalid auth token
+    
+  /deliverables:
+    get:
+      summary: Get deliverables
+      operationId: getDeliverables
+      parameters:
+        - name: filter
+          in: query
+          required: false
+          description: Filter by deliverable name (full-text search)
+          example: now2
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Deliverable'
+
+        '401':
+          description: Invalid auth token
+
+components:
+  schemas:
+    DeliverableStage: 
+      type: object
+      nullable: true
+      properties:
+        current_published_version:
+          type: string
+          example: v1.2.3
+        last_published_at:
+          type: string
+          format: date-time
+          example: "2024-10-31T10:00:00Z"
+        download_uri:
+          type: string
+          format: uri
+          nullable: true
+        current_configuration_uri:  
+          type: string
+          format: uri
+          nullable: true
+          example: https://tars.iotinga.it/space/api/v1/customers/IRSAP/projects/NOW2/deliverables/now2-app-android/configurations/staging
+        
+    Event:
+      type: object
+      properties:
+        id: 
+          type: string
+          description: Unique ID for the event
+        outcome: 
+          type: string
+          enum: [success, failure, timeout]
+          description: Outcome of the build
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the event
+        type: 
+          type: string
+          enum: [build, publish]
+          description: Type of events
+        stage:
+          type: string
+          enum: [delivery, staging, production]
+          description: stage for the event
+          nullable: true
+        version:
+          type: string
+          description: version built or published
+          example: v1.2.3
+        source_code_uri:
+          type: string
+          description: pointer to the source code on GitHub
+          format: uri
+          example: https://github.com/iotinga/boccioni/tags/v1.2.3
+        external_ref:
+          type: string
+          description: External identifier for this event (e.g. GitHub run id)
+          nullable: true
+        external_ref_uri:
+          type: string
+          description: Uri to an external entity (e.g. GitHub actions run log)
+          nullable: true
+        
+    Deliverable:
+      type: object
+      properties:
+        id: 
+          type: string
+          description: ID of the deliverable
+          format: uuid
+        name: 
+          type: string
+          description: Name of the deliverable
+          example: now2-app-ios
+        project:
+          type: string
+          description: project ID
+          example: NOW2
+        customer:
+          type: string
+          description: customer alias
+          example: IRSAP
+        stages:
+          type: object
+          description: Informations about stages
+          properties:
+            production: 
+              $ref: '#/components/schemas/DeliverableStage'
+            staging:
+              $ref: '#/components/schemas/DeliverableStage'
+            delivery:
+              $ref: '#/components/schemas/DeliverableStage'
+        can_publish_from_ui:
+          type: boolean
+          description: true if the deliverable can be published from the UI
+        latest_build_events:
+          type: array
+          description: Status of the latest builds
+          items:
+            $ref: '#/components/schemas/Event'
+        repository_uri:
+          type: string
+          format: uri
+          description: Refrence to the source code
+          example: https://github.com/iotinga/boccioni
+          
+    DeliverableSummary:
+      type: object
+      properties:
+        name: 
+          type: string
+          description: Name of the deliverable
+        uri:
+          type: string
+          format: uri
+        stages:
+          type: object
+          description: Latest published deliverable in the standard stages
+          properties:
+            production: 
+              $ref: '#/components/schemas/DeliverableStage'
+            staging:
+              $ref: '#/components/schemas/DeliverableStage'
+            delivery:
+              $ref: '#/components/schemas/DeliverableStage'
+        last_build_event:
+            $ref: '#/components/schemas/Event'
+        repository_uri:
+          type: string
+          format: uri
+          description: Refrence to the source code
+          example: https://github.com/iotinga/boccioni
+        project:
+          type: string
+          format: string
+          description: Project name
+          example: NOW2
+        customer:
+          type: string
+          format: string
+          description: Customer name
+          example: IRSAP
+
+    Project:
+      type: object
+      properties:
+        id: 
+          type: string
+          description: ID of the project
+          format: uuid
+        name:
+          type: string
+          description: Name of the project
+          example: NOW2
+        customer:
+          type: string
+          description: customer alias
+          example: IRSAP
+        deliverables:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliverableSummary'
+
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID of the customer
+          format: uuid
+        name: 
+          type: string
+          description: Alias of the customer
+          example: IRSAP
+        projects:
+          type: array
+          description: Projects of the customer
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the project
+                example: NOW2
+              uri:
+                type: string
+                format: uri
+                description: Uri of the project
+                example: https://tars.tinga.io/space/api/v1/customer/IRSAP/projects/NOW2
+              number_of_deliverables:
+                type: number
+                description: number of deliverable in the project
+                example: 4
+                
+
+      

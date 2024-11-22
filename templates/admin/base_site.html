@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrahead %}
+    <link rel="icon" href="{% static 'img/logo.svg' %}" />
+{% endblock %}
+
+{% block branding %}
+<a href="{% url 'admin:index' %}">
+    <div id="site-name" style="display:flex; flex-direction:row;align-items:center;">
+        <img src="{% static 'img/logo_white.svg' %}" height="60px" width="60px" />
+        <div style="margin-left:20px">
+            <h1 style="line-height:100%;margin:auto;color:white;letter-spacing: 2px;font-size: 1.5rem;">TARS</h1>
+        </div>
+    </div>
+</a>
+
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+:root {
+  --header-bg: #216BFF !important;
+}
+</style>
+{% endblock %}
